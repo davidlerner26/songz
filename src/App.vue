@@ -270,7 +270,7 @@
 </template>
 
 <script>
-import AppHeader from '@/components/AppHeader.vue'
+import AppHeader from '@/components/Header.vue'
 import Auth from '@/components/Auth.vue'
 
 export default {
