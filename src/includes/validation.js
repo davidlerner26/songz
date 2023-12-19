@@ -7,9 +7,16 @@ import {
   min_value as minValue,
   max_value as maxValue,
   confirmed,
-  not_one_of as notOneOf
+  not_one_of as notOneOf,
+  excluded
 } from '@vee-validate/rules'
-import { Form as VeeForm, Field as VeeField, defineRule, ErrorMessage } from 'vee-validate'
+import {
+  Form as VeeForm,
+  Field as VeeField,
+  defineRule,
+  ErrorMessage,
+  configure
+} from 'vee-validate'
 
 export default {
   install(app) {
@@ -27,8 +34,6 @@ export default {
     defineRule('max_value', maxValue)
     defineRule('passwords_mismatch', confirmed)
     defineRule('not_one_of', notOneOf)
-    defineRule('excluded', excluded)
-    defineRule('country_excluded', excluded)
 
     configure({
       generateMessage: (ctx) => {
@@ -39,15 +44,13 @@ export default {
           alpha_spaces: `The field ${ctx.field} may only contain alphabetical characters and spaces.`,
           min_value: `The field ${ctx.field} is too low.`,
           max_value: `The field ${ctx.field} is too high.`,
-          excluded: `You are not allowed to use this value for the field ${ctx.field}.`,
-          country_excluded: 'Due to restrictions, we do not accept users for this location.',
           passwords_mismatch: 'The passwords do not match.',
           tos: 'You must accept the Terms of Service.'
-        };
+        }
 
-        const message = messages[ctx.rule.name] ?? `The field ${ctx.field} is invalid.`;
+        const message = messages[ctx.rule.name] ?? `The field ${ctx.field} is invalid.`
 
-        return message;
+        return message
       },
       validateOnBlur: true,
       validateOnChange: true,
@@ -55,5 +58,4 @@ export default {
       validateOnModelUpdate: true
     })
   }
-
 }
