@@ -140,15 +140,14 @@ export default {
 
       try {
         this.createUser(values)
+        this.reg_alert_variant = 'bg-green-500'
+        this.reg_alert_msg = 'Sucess! Your account has been created.'
+        window.location.reload()
       } catch (error) {
         this.reg_in_submission = false
         this.reg_alert_variant = 'bg-red-500'
         this.reg_alert_msg = 'An unexpected error ocured. Please try again later.'
-        return
       }
-
-      this.reg_alert_variant = 'bg-green-500'
-      this.reg_alert_msg = 'Sucess! Your account has been created.'
     }
   }
 }

@@ -69,6 +69,7 @@ export default {
         await this.authenticate(values)
         this.login_alert_variant = 'bg-green-500'
         this.login_alert_msg = 'Sucess! Your account has been created.'
+        window.location.reload()
       } catch (error) {
         this.login_in_submission = false
         this.login_alert_variant = 'bg-red-500'
