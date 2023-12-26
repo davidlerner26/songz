@@ -20,24 +20,19 @@
       </div>
       <hr class="my-6" />
       <!-- Progess Bars -->
-      <div class="mb-4">
+      <div class="mb-4" v-for="upload in uploads" :key="upload.name">
         <!-- File Name -->
-        <div class="font-bold text-sm">Just another song.mp3</div>
+        <div class="font-bold text-sm" :class="upload.text_class">
+          <i :class="upload.icon">{{ upload.name }}</i>
+        </div>
+        3,
         <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
           <!-- Inner Progress Bar -->
-          <div class="transition-all progress-bar bg-blue-400" style="width: 75%"></div>
-        </div>
-      </div>
-      <div class="mb-4">
-        <div class="font-bold text-sm">Just another song.mp3</div>
-        <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
-          <div class="transition-all progress-bar bg-blue-400" style="width: 35%"></div>
-        </div>
-      </div>
-      <div class="mb-4">
-        <div class="font-bold text-sm">Just another song.mp3</div>
-        <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
-          <div class="transition-all progress-bar bg-blue-400" style="width: 55%"></div>
+          <div
+            class="transition-all progress-bar bg-blue-400"
+            :class="upload.variant"
+            :style="{ width: upload.current_progress + '%' }"
+          ></div>
         </div>
       </div>
     </div>
@@ -45,13 +40,14 @@
 </template>
 
 <script>
-import { storage } from '@/includes/firebase'
+import { storage, auth, songsCollection } from '@/includes/firebase'
 
 export default {
   name: 'Upload',
   data() {
     return {
-      is_dragover: false
+      is_dragover: false,
+      uploads: []
     }
   },
   methods: {
@@ -67,7 +63,48 @@ export default {
 
         const storageRef = storage.ref() // firebaseConfig.storageBucket: 'songz-35fbc.appspot.com'
         const songsRef = storageRef.child(`songs/${file.name}`)
-        songsRef.put(file)
+        const task = songsRef.put(file)
+
+        const uploadIndex =
+          this.uploads.push({
+            task,
+            current_progress: 0,
+            name: file.name,
+            variant: 'bg-blue-400',
+            icon: 'fas fa-spinner fa-spin',
+            text_class: ''
+          }) - 1
+
+        task.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            this.uploads[uploadIndex].current_progress = progress
+          },
+          (error) => {
+            this.uploads[uploadIndex].variant = 'bg-red-400'
+            this.uploads[uploadIndex].icon = 'fas fa-times'
+            this.uploads[uploadIndex].icon = 'text-red-400'
+            console.log(error)
+          },
+          async () => {
+            const song = {
+              uid: auth.currentUser.uid,
+              display_name: auth.currentUser.displayName,
+              original_name: task.snapshot.ref.name,
+              modified_name: task.snapshot.ref.name,
+              genre: '',
+              comment_count: 0
+            }
+
+            song.url = await task.snapshot.ref.getDownloadUrl()
+            await songsCollection.add(song)
+
+            this.uploads[uploadIndex].variant = 'bg-green-400'
+            this.uploads[uploadIndex].icon = 'fas fa-check'
+            this.uploads[uploadIndex].icon = 'text-green-400'
+          }
+        )
       })
     }
   }
