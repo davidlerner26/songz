@@ -25,6 +25,7 @@
             name="modified_name"
             class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
             placeholder="Enter Song Title"
+            @input="updateUnsavedFlag(true)"
           />
           <ErrorMessage class="text-red-600" name="modified_name" />
         </div>
@@ -35,6 +36,7 @@
             name="genre"
             class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
             placeholder="Enter Genre"
+            @input="updateUnsavedFlag(true)"
           />
           <ErrorMessage class="text-red-600" name="genre" />
         </div>
@@ -79,6 +81,9 @@ export default {
     removeSong: {
       type: Function,
       required: true
+    },
+    updateUnsavedFlag: {
+      type: Function
     }
   },
   data() {
@@ -111,11 +116,13 @@ export default {
       }
 
       this.updateSong(this.index, values)
+      this.updateUnsavedFlag(false)
 
       this.in_submission = false
       this.alert_variant = 'bg-green-500'
       this.alert_message = 'Sucess!'
     },
+
     async deleteSong() {
       const storageRef = storage.ref()
       const songRef = storageRef.child(`songs/${this.song.original_name}`)
