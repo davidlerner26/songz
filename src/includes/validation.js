@@ -7,8 +7,7 @@ import {
   min_value as minValue,
   max_value as maxValue,
   confirmed,
-  not_one_of as notOneOf,
-  excluded
+  not_one_of as notOneOf
 } from '@vee-validate/rules'
 import {
   Form as VeeForm,
