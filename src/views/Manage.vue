@@ -3,7 +3,7 @@
   <section class="container mx-auto mt-6">
     <div class="md:grid md:grid-cols-3 md:gap-4">
       <div class="col-span-1">
-        <upload></upload>
+        <upload ref="upload" :addSong="addSong"></upload>
       </div>
       <div class="col-span-2">
         <div class="bg-white rounded border border-gray-200 relative flex flex-col">
@@ -47,14 +47,7 @@ export default {
   async created() {
     const snapshot = await songsCollection.where('uid', '==', auth.currentUser.uid).get()
 
-    snapshot.forEach((document) => {
-      const song = {
-        ...document.data(),
-        docID: document.id
-      }
-
-      this.songs.push(song)
-    })
+    snapshot.forEach(this.addSong)
   },
   methods: {
     updateSong(i, values) {
@@ -63,6 +56,14 @@ export default {
     },
     removeSong(i) {
       this.song.splice(i, 1)
+    },
+    addSong(document) {
+      const song = {
+        ...document.data(),
+        docID: document.id
+      }
+
+      this.songs.push(song)
     }
   }
 }
