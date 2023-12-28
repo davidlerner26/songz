@@ -121,18 +121,21 @@ export default {
       })
     }
   },
-  async created() {
-    const docSnaposhot = await songsCollection.doc(this.$route.params.id).get()
-    if (!docSnaposhot.exists) {
-      this.$router.push({ name: 'home' })
-      return
-    }
+  async beforeRouteEnter(to, from, next) {
+    const docSnaposhot = await songsCollection.doc(to.params.id).get()
 
-    const { sort } = this.$route.query
-    this.sort = sort === '1' || sort === '2' ? sort : '1'
+    next((vm) => {
+      if (!docSnaposhot.exists) {
+        vm.$router.push({ name: 'home' })
+        return
+      }
 
-    this.song = docSnaposhot.data()
-    this.getComments()
+      const { sort } = vm.$route.query
+      vm.sort = sort === '1' || sort === '2' ? sort : '1'
+
+      vm.song = docSnaposhot.data()
+      vm.getComments()
+    })
   },
   components: { ErrorMessage },
   methods: {
