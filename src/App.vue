@@ -1,5 +1,4 @@
 <template>
-  <!-- Header -->
   <app-header />
 
   <router-view v-slot="{ Component }">
@@ -8,36 +7,35 @@
     </transition>
   </router-view>
 
-  <!-- Player -->
-  <app-player></app-player>
+  <app-player />
 
-  <!-- Auth Modal -->
-  <app-auth />
+  <auth />
 </template>
 
 <script>
-import AppHeader from '@/components/Header.vue'
-import AppPlayer from '@/components/Player.vue'
-import AppAuth from '@/components/AppAuth.vue'
-import useUserStore from '@/stores/user'
-import { mapWritableState } from 'pinia'
-import { auth } from './includes/firebase'
+import AppHeader from "@/components/Header.vue";
+import Auth from "@/components/Auth.vue";
+import { mapWritableState } from "pinia";
+import useUserStore from "@/stores/user";
+import { auth } from "./includes/firebase";
+import AppPlayer from "@/components/Player.vue";
 
 export default {
+  name: "App",
   components: {
     AppHeader,
-    AppAuth,
-    AppPlayer
+    Auth,
+    AppPlayer,
   },
   computed: {
-    ...mapWritableState(useUserStore, ['userLoggedIn'])
+    ...mapWritableState(useUserStore, ["userLoggedIn"]),
   },
   created() {
     if (auth.currentUser) {
-      this.userLoggedIn = true
+      this.userLoggedIn = true;
     }
-  }
-}
+  },
+};
 </script>
 
 <style>
@@ -50,7 +48,7 @@ export default {
 }
 
 .fade-leave-to {
-  transition: all 0.5s linear;
+  transition: all 0s lienar;
   opacity: 0;
 }
 </style>

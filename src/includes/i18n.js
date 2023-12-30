@@ -1,26 +1,26 @@
-import { createI18n } from 'vue-i18n'
-import en from '@/locales/en.json'
-import fr from '@/locales/fr.json'
+import { createI18n } from "vue-i18n";
+import en from "@/locales/en.json";
+import fr from "@/locales/fr.json";
 
 export default createI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
+  locale: "en",
+  fallbackLocale: "en",
   messages: {
     en,
-    fr
+    fr,
   },
   numberFormats: {
     en: {
       currency: {
-        style: 'currency',
-        currency: 'USD'
-      }
+        style: "currency",
+        currency: "USD",
+      },
     },
     ja: {
       currency: {
-        style: 'currency',
-        currency: 'JPY'
-      }
-    }
-  }
-})
+        style: "currency",
+        currency: "JPY",
+      },
+    },
+  },
+});

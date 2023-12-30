@@ -20,35 +20,45 @@
           <!-- Song Info -->
           <div class="text-3xl font-bold">{{ song.modified_name }}</div>
           <div>{{ song.genre }}</div>
-          <div class="song-price">{{ $n(1, 'currency') }}</div>
+          <div class="song-price">{{ $n(1, "currency", "en") }}</div>
         </div>
       </div>
     </section>
     <!-- Form -->
-    <section id="comments" class="container mx-auto mt-6">
-      <div class="bg-white rounded border border-gray-200 relative flex flex-col">
+    <section class="container mx-auto mt-6" id="comments">
+      <div
+        class="bg-white rounded border border-gray-200 relative flex flex-col"
+      >
         <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
           <!-- Comment Count -->
-          <span class="card-title">{{
-            $tc('song.comment_count', song.comment_count, { count: song.comment_count })
-          }}</span>
+          <span class="card-title">
+            {{
+              $tc("song.comment_count", song.comment_count, {
+                count: song.comment_count,
+              })
+            }}
+          </span>
           <i class="fa fa-comments float-right text-green-400 text-2xl"></i>
         </div>
         <div class="p-6">
           <div
-            class="text-white text-center font-bold mb-4"
+            class="text-white text-center font-bold p-4 mb-4"
             v-if="comment_show_alert"
             :class="comment_alert_variant"
           >
             {{ comment_alert_message }}
           </div>
-          <vee-form :validation-schema="schema" @submit="addComment" v-if="userLoggedIn">
+          <vee-form
+            :validation-schema="schema"
+            @submit="addComment"
+            v-if="userLoggedIn"
+          >
             <vee-field
               as="textarea"
               name="comment"
               class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded mb-4"
               placeholder="Your comment here..."
-            />
+            ></vee-field>
             <ErrorMessage class="text-red-600" name="comment" />
             <button
               type="submit"
@@ -60,8 +70,8 @@
           </vee-form>
           <!-- Sort Comments -->
           <select
-            class="block mt-4 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
             v-model="sort"
+            class="block mt-4 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
           >
             <option value="1">Latest</option>
             <option value="2">Oldest</option>
@@ -89,110 +99,115 @@
 </template>
 
 <script>
-import { auth, songsCollection, commentsCollection } from '@/includes/firebase'
-import { ErrorMessage } from 'vee-validate'
-import { mapState, mapActions } from 'pinia'
-import useUserStore from '/stores/user'
-import usePlayerStore from '@/stores/player'
+import { songsCollection, auth, commentsCollection } from "@/includes/firebase";
+import { mapState, mapActions } from "pinia";
+import useUserStore from "@/stores/user";
+import usePlayerStore from "@/stores/player";
 
 export default {
-  name: 'Song',
+  name: "Song",
   data() {
     return {
       song: {},
       schema: {
-        comment: 'required|min:3'
+        comment: "required|min:3",
       },
       comment_in_submission: false,
       comment_show_alert: false,
-      comment_alert_variant: 'bg-blue-500',
-      comment_alert_message: 'Please wait! Your comment is being submitted',
+      comment_alert_variant: "bg-blue-500",
+      comment_alert_message: "Please wait! Your comment is being submitted",
       comments: [],
-      sort: '1'
-    }
+      sort: "1",
+    };
   },
   computed: {
-    ...mapState(useUserStore, ['userLoggedIn']),
+    ...mapState(useUserStore, ["userLoggedIn"]),
     sortedComments() {
       return this.comments.slice().sort((a, b) => {
-        if (this.sort === '1') {
-          return new Date(b.datePosted) - new Date(a.datePosted)
+        if (this.sort === "1") {
+          return new Date(b.datePosted) - new Date(a.datePosted);
         }
-        return new Date(a.datePosted) - new Date(b.datePosted)
-      })
-    }
+
+        return new Date(a.datePosted) - new Date(b.datePosted);
+      });
+    },
   },
   async beforeRouteEnter(to, from, next) {
-    const docSnaposhot = await songsCollection.doc(to.params.id).get()
+    const docSnapshot = await songsCollection.doc(to.params.id).get();
 
     next((vm) => {
-      if (!docSnaposhot.exists) {
-        vm.$router.push({ name: 'home' })
-        return
+      if (!docSnapshot.exists) {
+        vm.$router.push({ name: "home" });
+        return;
       }
 
-      const { sort } = vm.$route.query
-      vm.sort = sort === '1' || sort === '2' ? sort : '1'
+      const { sort } = vm.$route.query;
 
-      vm.song = docSnaposhot.data()
-      vm.getComments()
-    })
+      vm.sort = sort === "1" || sort === "2" ? sort : "1";
+
+      vm.song = docSnapshot.data();
+      vm.getComments();
+    });
   },
-  components: { ErrorMessage },
   methods: {
-    ...mapActions(usePlayerStore, ['newSong']),
+    ...mapActions(usePlayerStore, ["newSong"]),
     async addComment(values, { resetForm }) {
-      this.comment_in_submission = true
-      this.comment_show_alert = true
-      this.comment_alert_variant = 'bg-blue-500'
-      this.comment_alert_message = 'Please wait! Your comment is being submitted'
+      this.comment_in_submission = true;
+      this.comment_show_alert = true;
+      this.comment_alert_variant = "bg-blue-500";
+      this.comment_alert_message =
+        "Please wait! Your comment is being submitted";
 
       const comment = {
         content: values.comment,
-        datePosted: new Date().toString(), // Firebase does not accept dates
-        sid: this.$route.id,
+        datePosted: new Date().toString(),
+        sid: this.$route.params.id,
         name: auth.currentUser.displayName,
-        uid: auth.currentUser.uid
-      }
+        uid: auth.currentUser.uid,
+      };
 
-      await commentsCollection.add(comment)
+      await commentsCollection.add(comment);
 
-      this.song.comment_count += 1
+      this.song.comment_count += 1;
       await songsCollection.doc(this.$route.params.id).update({
-        comment_count: this.song.comment_count
-      })
+        comment_count: this.song.comment_count,
+      });
 
-      this.getComments()
+      this.getComments();
 
-      this.comment_in_submission = false
-      this.comment_alert_variant = 'bg-green-500'
-      this.comment_alert_message = 'Please wait! Your comment is being submitted'
+      this.comment_in_submission = false;
+      this.comment_alert_variant = "bg-green-500";
+      this.comment_alert_message = "Comment added!";
 
-      resetForm()
+      resetForm();
     },
     async getComments() {
-      const snapshots = await commentsCollection.where('sid', '==', this.$route.params.id).get()
-      this.comments = []
+      const snapshots = await commentsCollection
+        .where("sid", "==", this.$route.params.id)
+        .get();
+
+      this.comments = [];
 
       snapshots.forEach((doc) => {
         this.comments.push({
           docID: doc.id,
-          ...doc.data()
-        })
-      })
-    }
+          ...doc.data(),
+        });
+      });
+    },
   },
   watch: {
     sort(newVal) {
       if (newVal === this.$route.query.sort) {
-        return
+        return;
       }
+
       this.$router.push({
         query: {
-          sort: newVal
-        }
-      })
-    }
-  }
-}
+          sort: newVal,
+        },
+      });
+    },
+  },
+};
 </script>

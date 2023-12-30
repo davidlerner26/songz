@@ -1,6 +1,6 @@
 <template>
   <div
-    class="text-white text-center font-bold p-4 rounded mb-4"
+    class="text-white text-center font-bold p-4 mb-4"
     v-if="login_show_alert"
     :class="login_alert_variant"
   >
@@ -40,42 +40,44 @@
 </template>
 
 <script>
-import { mapActions } from 'pinia'
-import useUserStore from '@/stores/user'
+import { mapActions } from "pinia";
+import useUserStore from "@/stores/user";
 
 export default {
-  name: 'AppLoginForm',
+  name: "LoginForm",
   data() {
     return {
       loginSchema: {
-        email: 'required|email',
-        password: 'required|min:9|max:100'
+        email: "required|email",
+        password: "required|min:9|max:100",
       },
       login_in_submission: false,
       login_show_alert: false,
-      login_alert_variant: 'bg-blue-500',
-      login_alert_msg: 'Please wait! We are logging you in.'
-    }
+      login_alert_variant: "bg-blue-500",
+      login_alert_msg: "Please wait! We are logging you in.",
+    };
   },
   methods: {
-    ...mapActions(useUserStore, ['authenticate']),
+    ...mapActions(useUserStore, ["authenticate"]),
     async login(values) {
-      this.login_in_submission = true
-      this.login_show_alert = true
-      this.login_alert_variant = 'bg-blue-500'
-      this.login_alert_msg = 'Please wait! We are logging you in.'
+      this.login_show_alert = true;
+      this.login_in_submission = true;
+      this.login_alert_variant = "bg-blue-500";
+      this.login_alert_msg = "Please wait! We are logging you in.";
 
       try {
-        await this.authenticate(values)
-        this.login_alert_variant = 'bg-green-500'
-        this.login_alert_msg = 'Sucess! Your account has been created.'
-        window.location.reload()
+        await this.authenticate(values);
       } catch (error) {
-        this.login_in_submission = false
-        this.login_alert_variant = 'bg-red-500'
-        this.login_alert_msg = 'Inavlid login details.'
+        this.login_in_submission = false;
+        this.login_alert_variant = "bg-red-500";
+        this.login_alert_msg = "Invalid login details.";
+        return;
       }
-    }
-  }
-}
+
+      this.login_alert_variant = "bg-green-500";
+      this.login_alert_msg = "Success! You are now logged in.";
+      window.location.reload();
+    },
+  },
+};
 </script>

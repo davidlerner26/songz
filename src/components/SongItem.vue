@@ -1,6 +1,6 @@
 <template>
   <li
-    class="flex justify-between items-center p-3 pl-6 cursor-pointer transition duration-300 hover:bg-gray-50 example"
+    class="flex justify-between items-center p-3 pl-6 cursor-pointer transition duration-300 hover:bg-gray-50 example snapshot"
     :class="`song-id-${song.docID}`"
   >
     <div>
@@ -10,7 +10,9 @@
       >
         {{ song.modified_name }}
       </router-link>
-      <span class="text-gray-500 text-sm">{{ song.display_name }}</span>
+      <span class="text-gray-500 text-sm">
+        {{ song.display_name }}
+      </span>
     </div>
 
     <div class="text-gray-600 text-lg">
@@ -30,7 +32,7 @@
 
 <script>
 export default {
-  name: 'SongItem',
-  props: ['song']
-}
+  name: "SongItem",
+  props: ["song"],
+};
 </script>

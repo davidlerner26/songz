@@ -9,8 +9,9 @@
       <div
         class="w-full px-10 py-20 rounded text-center cursor-pointer border border-dashed border-gray-400 text-gray-400 transition duration-500 hover:text-white hover:bg-green-400 hover:border-green-400 hover:border-solid"
         :class="{ 'bg-green-400 border-green-400 border-solid': is_dragover }"
-        @drag.prevent=""
-        @dragstart.prevent.stop="is_dragover = false"
+        @drag.prevent.stop=""
+        @dragstart.prevent.stop=""
+        @dragend.prevent.stop="is_dragover = false"
         @dragover.prevent.stop="is_dragover = true"
         @dragenter.prevent.stop="is_dragover = true"
         @dragleave.prevent.stop="is_dragover = false"
@@ -24,15 +25,14 @@
       <div class="mb-4" v-for="upload in uploads" :key="upload.name">
         <!-- File Name -->
         <div class="font-bold text-sm" :class="upload.text_class">
-          <i :class="upload.icon">{{ upload.name }}</i>
+          <i :class="upload.icon"></i> {{ upload.name }}
         </div>
-        3,
         <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
           <!-- Inner Progress Bar -->
           <div
-            class="transition-all progress-bar bg-blue-400"
             :class="upload.variant"
-            :style="{ width: upload.current_progress + '%' }"
+            class="transition-all progress-bar"
+            :style="{ width: `${upload.current_progress}%` }"
           ></div>
         </div>
       </div>
@@ -41,65 +41,68 @@
 </template>
 
 <script>
-import { storage, auth, songsCollection } from '@/includes/firebase'
+import { storage, auth, songsCollection } from "@/includes/firebase";
 
 export default {
-  name: 'Upload',
+  name: "Upload",
   data() {
     return {
       is_dragover: false,
-      uploads: []
-    }
+      uploads: [],
+    };
   },
-  props: ['addSong'],
+  props: ["addSong"],
   methods: {
     upload($event) {
-      this.is_dragover = false
+      this.is_dragover = false;
 
-      const files = $event.dataTransfer ? [...$event.dataTransfer.files] : [...$event.target.files]
+      const files = $event.dataTransfer
+        ? [...$event.dataTransfer.files]
+        : [...$event.target.files];
 
       files.forEach((file) => {
-        if (file.type !== 'audio/mpeg') {
-          return
+        if (file.type !== "audio/mpeg") {
+          return;
         }
 
-        if(!navigator.onLine){
+        if (!navigator.onLine) {
           this.uploads.push({
             task: {},
-            current_progress:100,
+            current_progress: "100",
             name: file.name,
-            variant: 'bg-red-400',
-            icon: 'fas fa-times',
-            text_class: 'text-red-400'
-          })
-          return
+            variant: "bg-red-400",
+            icon: "fas fa-times",
+            text_class: "text-red-400",
+          });
+          return;
         }
 
-        const storageRef = storage.ref() // firebaseConfig.storageBucket: 'songz-35fbc.appspot.com'
-        const songsRef = storageRef.child(`songs/${file.name}`)
-        const task = songsRef.put(file)
+        const storageRef = storage.ref(); // music-c2596.appspot.com
+        const songsRef = storageRef.child(`songs/${file.name}`); // music-c2596.appspot.com/songs/example.mp3
+        const task = songsRef.put(file);
 
         const uploadIndex =
           this.uploads.push({
             task,
             current_progress: 0,
             name: file.name,
-            variant: 'bg-blue-400',
-            icon: 'fas fa-spinner fa-spin',
-            text_class: ''
-          }) - 1
+            variant: "bg-blue-400",
+            icon: "fas fa-spinner fa-spin",
+            text_class: "",
+          }) - 1;
 
         task.on(
-          'state_changed',
+          "state_changed",
           (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            this.uploads[uploadIndex].current_progress = progress
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploads[uploadIndex].current_progress = progress;
           },
           (error) => {
-            this.uploads[uploadIndex].variant = 'bg-red-400'
-            this.uploads[uploadIndex].icon = 'fas fa-times'
-            this.uploads[uploadIndex].icon = 'text-red-400'
-            console.log(error)
+            this.uploads[uploadIndex].variant = "bg-red-400";
+            this.uploads[uploadIndex].icon = "fas fa-times";
+            this.uploads[uploadIndex].text_class = "text-red-400";
+            console.log(error);
           },
           async () => {
             const song = {
@@ -107,28 +110,33 @@ export default {
               display_name: auth.currentUser.displayName,
               original_name: task.snapshot.ref.name,
               modified_name: task.snapshot.ref.name,
-              genre: '',
-              comment_count: 0
-            }
+              genre: "",
+              comment_count: 0,
+            };
 
-            song.url = await task.snapshot.ref.getDownloadUrl()
-            const songRef = await songsCollection.add(song)
-            const songSnapshot = await songRef.get()
+            song.url = await task.snapshot.ref.getDownloadURL();
+            const songRef = await songsCollection.add(song);
+            const songSnapshot = await songRef.get();
 
-            this.addSong(songSnapshot)
+            this.addSong(songSnapshot);
 
-            this.uploads[uploadIndex].variant = 'bg-green-400'
-            this.uploads[uploadIndex].icon = 'fas fa-check'
-            this.uploads[uploadIndex].icon = 'text-green-400'
+            this.uploads[uploadIndex].variant = "bg-green-400";
+            this.uploads[uploadIndex].icon = "fas fa-check";
+            this.uploads[uploadIndex].text_class = "text-green-400";
           }
-        )
-      })
-    }
+        );
+      });
+    },
+    cancelUploads() {
+      this.uploads.forEach((upload) => {
+        upload.task.cancel();
+      });
+    },
   },
   beforeUnmount() {
     this.uploads.forEach((upload) => {
-      upload.task.cancel()
-    })
-  }
-}
+      upload.task.cancel();
+    });
+  },
+};
 </script>
