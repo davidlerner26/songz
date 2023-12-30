@@ -1,37 +1,39 @@
-import { auth, usersCollection } from '@/includes/firebase'
-import defineStore from 'pinia'
+import { defineStore } from "pinia";
+import { auth, usersCollection } from "@/includes/firebase";
 
-export default defineStore('user', {
+export default defineStore("user", {
   state: () => ({
-    userLoggedIn: false
+    userLoggedIn: false,
   }),
   actions: {
     async register(values) {
-      const userCred = await auth.createUserWithEmailAndPassword(values.email, values.password)
+      const userCred = await auth.createUserWithEmailAndPassword(
+        values.email,
+        values.password
+      );
 
-      const { name, email, age, country } = values
-      usersCollection.doc(userCred.user.uid).set({
-        name,
-        email,
-        age,
-        country
-      })
+      await usersCollection.doc(userCred.user.uid).set({
+        name: values.name,
+        email: values.email,
+        age: values.age,
+        country: values.country,
+      });
 
-      userCred.user.updateProfile({
-        displayName: values.name
-      })
+      await userCred.user.updateProfile({
+        displayName: values.name,
+      });
 
-      this.useUserStore.userLoggedIn = true
+      this.userLoggedIn = true;
     },
     async authenticate(values) {
-      await auth.signInWithEmailAndPassword(values.email, values.password)
+      await auth.signInWithEmailAndPassword(values.email, values.password);
 
-      this.userLoggedIn = true
+      this.userLoggedIn = true;
     },
     async signOut() {
-      await auth.signOut()
+      await auth.signOut();
 
-      this.userLoggedIn = false
-    }
-  }
-})
+      this.userLoggedIn = false;
+    },
+  },
+});

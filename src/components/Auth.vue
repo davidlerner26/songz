@@ -1,5 +1,10 @@
 <template>
-  <div class="fixed z-10 inset-0 overflow-y-auto hidden" id="modal" :class="hiddenClass">
+  <!-- Auth Modal -->
+  <div
+    class="fixed z-10 inset-0 overflow-y-auto"
+    id="modal"
+    :class="hiddenClass"
+  >
     <div
       class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
     >
@@ -8,7 +13,9 @@
       </div>
 
       <!-- This element is to trick the browser into centering the modal contents. -->
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen"
+        >&#8203;</span
+      >
 
       <div
         class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
@@ -19,7 +26,10 @@
           <div class="flex justify-between items-center pb-4">
             <p class="text-2xl font-bold">Your Account</p>
             <!-- Modal Close Button -->
-            <div class="modal-close cursor-pointer z-50" @click="modalVisibility = false">
+            <div
+              class="modal-close cursor-pointer z-50"
+              @click="modalVisibility = false"
+            >
               <i class="fas fa-times"></i>
             </div>
           </div>
@@ -33,7 +43,7 @@
                 @click.prevent="tab = 'login'"
                 :class="{
                   'hover:text-white text-white bg-blue-600': tab === 'login',
-                  'hover:text-blue-600': tab === 'register'
+                  'hover:text-blue-600': tab === 'register',
                 }"
                 >Login</a
               >
@@ -45,16 +55,14 @@
                 @click.prevent="tab = 'register'"
                 :class="{
                   'hover:text-white text-white bg-blue-600': tab === 'register',
-                  'hover:text-blue-600': tab === 'login'
+                  'hover:text-blue-600': tab === 'login',
                 }"
                 >Register</a
               >
             </li>
           </ul>
 
-          <!-- Login Form -->
           <app-login-form v-if="tab === 'login'" />
-          <!-- Registration Form -->
           <app-register-form v-else />
         </div>
       </div>
@@ -63,27 +71,28 @@
 </template>
 
 <script>
-import { mapState, mapWritableState } from 'pinia'
-import useModalStore from '@/stores/modal'
-import AppLoginForm from '@/components/AppLoginForm.vue'
-import AppRegisterForm from '@/components/AppRegisterForm.vue'
+import { mapState, mapWritableState } from "pinia";
+import useModalStore from "@/stores/modal";
+import AppLoginForm from "@/components/LoginForm.vue";
+import AppRegisterForm from "@/components/RegisterForm.vue";
 
 export default {
-  name: 'AppAuth',
+  name: "Auth",
   components: {
     AppLoginForm,
-    AppRegisterForm
+    AppRegisterForm,
   },
   data() {
     return {
-      tab: 'login'
-    }
+      tab: "login",
+    };
   },
   computed: {
-    ...mapState(useModalStore, ['hiddenClass']),
+    ...mapState(useModalStore, ["hiddenClass"]),
     ...mapWritableState(useModalStore, {
-      modalVisibility: 'isOpen'
-    })
-  }
-}
+      modalVisibility: "isOpen",
+    }),
+  },
+  methods: {},
+};
 </script>

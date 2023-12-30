@@ -1,42 +1,40 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, URL } from "node:url";
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa'
-// import visualizer from 'rollup-plugin-visualizer'
+import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
+import vue from "@vitejs/plugin-vue";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   test: {
-    globals: true
+    globals: true,
   },
   plugins: [
     vue(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: "autoUpdate",
       devOptions: {
-        enabled: true
+        enabled: true,
       },
       manifest: {
-        name: 'Music App',
-        theme_color: '#ff5e3a',
+        name: "Music App",
+        theme_color: "#ff5e3a",
         icons: [
           {
-            src: 'assets/img/pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          }
-        ]
+            src: "assets/img/pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+        ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,jpg']
-      }
-    })
-    // visualizer({ open: true })
+        globPatterns: ["**/*.{js,css,html,png,jpg,}"],
+      },
+    }),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
-})
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+});

@@ -1,15 +1,17 @@
 <template>
+  <!-- Player -->
   <div class="fixed bottom-0 left-0 bg-white px-4 py-2 w-full">
     <!-- Track Info -->
     <div class="text-center" v-if="current_song.modified_name">
-      <span class="song-title font-bold">{{ current_song.modified_name }}</span> by
+      <span class="song-title font-bold">{{ current_song.modified_name }}</span>
+      by
       <span class="song-artist">{{ current_song.display_name }}</span>
     </div>
     <div class="flex flex-nowrap gap-4 items-center">
       <!-- Play/Pause Button -->
       <button type="button" @click.prevent="toggleAudio" id="player-play-btn">
         <i
-          class="fa fa-play text-gray-500 text-xl"
+          class="fa text-gray-500 text-xl"
           :class="{ 'fa-play': !playing, 'fa-pause': playing }"
         ></i>
       </button>
@@ -40,16 +42,22 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'pinia'
-import usePlayerStore from '@/stores/player'
+import { mapActions, mapState } from "pinia";
+import usePlayerStore from "@/stores/player";
 
 export default {
-  name: 'Player',
+  name: "Player",
   methods: {
-    ...mapActions(usePlayerStore, ['toggleAudio', 'updateSeek'])
+    ...mapActions(usePlayerStore, ["toggleAudio", "updateSeek"]),
   },
   computed: {
-    ...mapState(usePlayerStore, ['playing', 'duration', 'seek', 'playerProgress', 'current_song'])
-  }
-}
+    ...mapState(usePlayerStore, [
+      "playing",
+      "duration",
+      "seek",
+      "playerProgress",
+      "current_song",
+    ]),
+  },
+};
 </script>

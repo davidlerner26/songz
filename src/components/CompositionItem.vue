@@ -3,8 +3,8 @@
     <div v-show="!showForm">
       <h4 class="inline-block text-2xl font-bold">{{ song.modified_name }}</h4>
       <button
-        class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
         @click.prevent="deleteSong"
+        class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
       >
         <i class="fa fa-times"></i>
       </button>
@@ -16,13 +16,23 @@
       </button>
     </div>
     <div v-show="showForm">
-      <div class="text-white text-center font-bold p-4 mb-4" :class="alert_variant"></div>
-      <vee-form :validation-schema="schema" :initial-values="song" @submt="edit">
+      <div
+        class="text-white text-center font-bold p-4 mb-4"
+        v-if="show_alert"
+        :class="alert_variant"
+      >
+        {{ alert_message }}
+      </div>
+      <vee-form
+        @submit="edit"
+        :validation-schema="schema"
+        :initial-values="song"
+      >
         <div class="mb-3">
           <label class="inline-block mb-2">Song Title</label>
           <vee-field
-            type="text"
             name="modified_name"
+            type="text"
             class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
             placeholder="Enter Song Title"
             @input="updateUnsavedFlag(true)"
@@ -32,8 +42,8 @@
         <div class="mb-3">
           <label class="inline-block mb-2">Genre</label>
           <vee-field
-            type="text"
             name="genre"
+            type="text"
             class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
             placeholder="Enter Genre"
             @input="updateUnsavedFlag(true)"
@@ -61,77 +71,77 @@
 </template>
 
 <script>
-import { songsCollection, storage } from '@/includes/firebase'
+import { songsCollection, storage } from "@/includes/firebase";
 
 export default {
-  name: 'CompositionItem',
+  name: "CompositionItem",
   props: {
     song: {
       type: Object,
-      required: true
+      required: true,
     },
     updateSong: {
       type: Function,
-      required: true
+      required: true,
     },
     index: {
       type: Number,
-      required: true
+      required: true,
     },
     removeSong: {
       type: Function,
-      required: true
+      required: true,
     },
     updateUnsavedFlag: {
-      type: Function
-    }
+      type: Function,
+    },
   },
   data() {
     return {
       showForm: false,
       schema: {
-        modified_name: 'required',
-        genre: 'alpha_spaces'
+        modified_name: "required",
+        genre: "alpha_spaces",
       },
       in_submission: false,
       show_alert: false,
-      alert_variant: 'bg-blue-500',
-      alert_message: 'Please wait! Updating song info.'
-    }
+      alert_variant: "bg-blue-500",
+      alert_message: "Please wait! Updating song info",
+    };
   },
   methods: {
     async edit(values) {
-      this.in_submission = true
-      this.show_alert = true
-      this.alert_variant = 'bg-blue-500'
-      this.alert_message = 'Please wait! Updating some info.'
+      this.in_submission = true;
+      this.show_alert = true;
+      this.alert_variant = "bg-blue-500";
+      this.alert_message = "Please wait! Updating song info";
 
       try {
-        await songsCollection.doc(this.song.docID).update(values)
+        await songsCollection.doc(this.song.docID).update(values);
       } catch (error) {
-        this.in_submission = false
-        this.alert_variant = 'bg-red-500'
-        this.alert_message = 'Something went wrong! Try again later.'
-        return
+        this.in_submission = false;
+        this.alert_variant = "bg-red-500";
+        this.alert_message = "Something went wrong! Try again later";
+        return;
       }
 
-      this.updateSong(this.index, values)
-      this.updateUnsavedFlag(false)
+      this.updateSong(this.index, values);
+      this.updateUnsavedFlag(false);
 
-      this.in_submission = false
-      this.alert_variant = 'bg-green-500'
-      this.alert_message = 'Sucess!'
+      this.in_submission = false;
+      this.alert_variant = "bg-green-500";
+      this.alert_message = "Success!";
     },
-
     async deleteSong() {
-      const storageRef = storage.ref()
-      const songRef = storageRef.child(`songs/${this.song.original_name}`)
-      await songRef.delete() // Deletes from Storage
+      const storageRef = storage.ref();
+      const songRef = storageRef.child(`songs/${this.song.original_name}`);
 
-      await songsCollection.doc(this.song.docID).delete() // Deletes from DB
+      await songRef.delete();
 
-      this.removeSong(this.index)
-    }
-  }
-}
+      await songsCollection.doc(this.song.docID).delete();
+
+      this.removeSong(this.index);
+    },
+  },
+};
 </script>
